@@ -1,0 +1,7 @@
+[user]
+	email = admin@bebraven.org
+	name = Admin Server
+[core]
+	autocrlf = input
+[merge]
+        renamelimit = 3000
