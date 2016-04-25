@@ -18,6 +18,7 @@
 /.zlogin
 /.zshrc
 *old/
+*tmp/
 /.env
 *.swp
 /dumps
