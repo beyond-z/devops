@@ -8,7 +8,17 @@ now=$(date +"%Y%m%d")
 db_dump_staging_file=~/dumps/lms_staging_db_dump_$now.sql
 db_dump_dev_file=~/dumps/lms_dev_db_dump_$now.sql
 
-mv ~/dumps/lms_*.sql.gz ~/dumps/~archive
+mv ~/dumps/lms_*.sql.gz ~/dumps/~archive || { echo >&2 " ---- The previous warning most likely just means there were no old backups to archive"; }
+
+echo "Migrating Canvas production database to staging"
+
+# Remove s3:// prefix since we're targeting a URL like: https://s3.amazonaws.com/<bucket_name>/<file_name>
+escaped_prod_bucket=${PORTAL_S3_PROD_BUCKET//s3:\/\/}
+escaped_staging_bucket=${PORTAL_S3_STAGING_BUCKET//s3:\/\/}
+
+# This would just escape / with \/ but we need to remove the s3:// prefix in this case
+#escaped_prod_bucket=${PORTAL_S3_PROD_BUCKET//\//\\/}
+#escaped_staging_bucket=${PORTAL_S3_STAGING_BUCKET//\//\\/}
 
 pg_dump --clean -h $PORTAL_PROD_DB_SERVER -p 5432 -U $PORTAL_PROD_DB_USER -w -d $PORTAL_PROD_DB_NAME | sed -e "
   # Replace production access token with staging token. Encrypted values
@@ -27,7 +37,7 @@ pg_dump --clean -h $PORTAL_PROD_DB_SERVER -p 5432 -U $PORTAL_PROD_DB_USER -w -d 
   s/help.bebraven.org/staginghelp.bebraven.org/g;
 
   # CSS/JS config 
-  s/$PORTAL_S3_PROD_BUCKET/$PORTAL_S3_STAGING_BUCKET/g;
+  s/$escaped_prod_bucket/$escaped_staging_bucket/g;
 
   # BTW Passwords are done via SSO so we dont have to try to change them here
 " > $db_dump_staging_file && psql -h $PORTAL_STAGING_DB_SERVER -p 5432 -U $PORTAL_PROD_DB_USER -w -d $PORTAL_PROD_DB_NAME -f $db_dump_staging_file
@@ -43,6 +53,7 @@ then
 fi
 
 # Turn it into a development worth DB, compress and add to S3 so that local dev environments can pull it.
+echo "Migrating Canvas staging database to dev database"
 cat $db_dump_staging_file | sed -e "
   # Replace staging access token with a dev one.
   $PORTAL_REPLACE_STAGING_ACCESS_TOKEN_REGEX
