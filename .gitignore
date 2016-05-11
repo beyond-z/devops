@@ -4,9 +4,11 @@
 /.bash_profile
 /.bashrc
 /.cache
+/.config
 /.gem
 /.gnupg
 /.heroku
+/.local
 /.mkshrc
 /.netrc
 /.pgpass
