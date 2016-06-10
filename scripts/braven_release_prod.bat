@@ -8,7 +8,7 @@ then
 cd ~/src/braven
 
 # Merge the code from staging to master
-git checkout staging; git pull origin staging; git checkout master; git pull; git merge --no-ff staging
+git checkout staging; git pull origin staging; git checkout master; git pull origin master; git merge --no-ff staging
 
 if [ $? -ne 0 ]
 then
