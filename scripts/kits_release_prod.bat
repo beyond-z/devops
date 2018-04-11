@@ -5,7 +5,7 @@ read -r -p "Are you sure you want to release staging to production? [y/N] " resp
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
 then
 
-cd ~/src/braven_2
+cd ~/src/kits
 
 # Merge the code from staging to master
 git checkout staging; git pull origin staging; git checkout master; git pull origin master; git merge --no-ff staging
@@ -45,7 +45,7 @@ then
   exit 1;
 fi
 
-ssh $BRAVEN_PROD_USER 'cd /var/www/html; git pull origin master; chown -R www-data:www-data .; /etc/init.d/apache2 restart'
+ssh $KITS_PROD_USER 'cd /var/www/html; git pull origin master; chown -R www-data:www-data .; /etc/init.d/apache2 restart'
 if [ $? -ne 0 ]
 then
   echo "Failed connected to prod server and updating code"

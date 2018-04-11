@@ -6,4 +6,4 @@
 -- psql -h canvaslmsstaging2.cgqkamtjzz6t.us-west-1.rds.amazonaws.com -p 5432 -U canvas -w -d canvas_production -f lms_postgres.sql
 
 -- Accept all enrollments
-update enrollments set workflow_state = 'active' where workflow_state = 'invited';
+--update enrollments set workflow_state = 'active' where workflow_state = 'invited';

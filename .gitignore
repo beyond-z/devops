@@ -33,3 +33,10 @@
 *osqa_delete_user.sql
 /scripts/sslcerts
 /scripts/lms_migrate_to_rds
+/.Xauthority
+/.bundle/
+/.env-staging-prodsf
+/.lesshst
+/.npm/
+/.vim/
+/backups/
