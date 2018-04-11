@@ -1,7 +1,7 @@
 #/bin/bash
 source ~/.env
 
-cd ~/src/braven_2
+cd ~/src/kits
 git checkout staging; git pull origin staging; 
 
 if [ $? -ne 0 ]
@@ -10,7 +10,7 @@ then
   exit 1;
 fi
 
-ssh $BRAVEN_STAGING_USER 'cd /var/www/html; git pull origin staging; chown -R www-data:www-data .; /etc/init.d/apache2 restart'
+ssh $KITS_STAGING_USER 'cd /var/www/html; git pull origin staging; chown -R www-data:www-data .; /etc/init.d/apache2 restart'
 if [ $? -ne 0 ]
 then
   echo "Failed connected to staging server and updating code"
