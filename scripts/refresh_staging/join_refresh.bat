@@ -29,7 +29,9 @@ echo "Migrating the staging database in case there were schema changes"
 heroku run rake db:migrate --remote staging
 
 echo "Sanitizing all passwords in staging"
-cat ~/scripts/refresh_staging/join_sanitize_staging_passwords.rb | heroku run rails console --app $HEROKU_STAGING_APP --remote staging
+# Was too slow to do in ruby b/c it would kick off all hooks and validations. Just do it at the database level.
+#cat ~/scripts/refresh_staging/join_sanitize_staging_passwords.rb | heroku run rails console --app $HEROKU_STAGING_APP --remote staging
+echo "update users set encrypted_password = '$HEROKU_STAGING_ENCRYPTED_TEST1234_PASS';" | heroku pg:psql --app $HEROKU_STAGING_APP --remote staging
 
 echo "Taking staging db dump to create dev db so it can be pushed to the db dumps bucket on S3 for the developement env to access (done in parent script)"
 mv ~/dumps/join_*.sql.gz ~/dumps/~archive
