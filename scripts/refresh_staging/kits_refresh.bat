@@ -11,6 +11,7 @@ echo "mysqldump -h $KITS_PROD_DB_SERVER -P 3306 -u $KITS_PROD_DB_USER -p$KITS_PR
 mysqldump -h $KITS_PROD_DB_SERVER -P 3306 -u $KITS_PROD_DB_USER -p$KITS_PROD_DB_PASSWORD $KITS_PROD_DB_NAME  | sed -e "
   # TODO: insert any regexes to replace things as needed. E.g.
   s/https:\/\/kits.bebraven.org/https:\/\/stagingkits.bebraven.org/g;
+  s/sso.bebraven.org/stagingsso.bebraven.org/g;
 " > $staging_db_dump_file
 if [ -e $staging_db_dump_file ]
 then
