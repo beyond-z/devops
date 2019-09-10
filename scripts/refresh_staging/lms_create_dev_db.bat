@@ -9,7 +9,7 @@ source ~/.env
 
 now=$(date +"%Y%m%d")
 db_dump_staging_file=$1
-db_dump_dev_file=~/dumps/lms_dev_db_dump_$now
+db_dump_dev_file=~/dumps/lms_dev_db_dump_$now.sql
 db_dump_dev_file_gz=${db_dump_dev_file}.gz
 
 # Turn it into a development worth DB, compress and add to S3 so that local dev environments can pull it.
@@ -43,8 +43,8 @@ fi
 # Put the dev DBs on S3 so they can be pulled by local devs onto their machine.
 # Store a history of snapshots, but always overwrite the latest b/c that's what devs will pull.
 if aws --version 2> /dev/null; then
-  aws s3 cp $db_dump_dev_file_gz 's3://canvas-dev-db-dumps/lms_dev_db_dump_latest.gz'
-  aws s3 cp $db_dump_dev_file_gz "s3://canvas-dev-db-dumps/snapshots/lms_dev_db_dump_$now.gz"
+  aws s3 cp $db_dump_dev_file_gz 's3://canvas-dev-db-dumps/lms_dev_db_dump_latest.sql.gz'
+  aws s3 cp $db_dump_dev_file_gz "s3://canvas-dev-db-dumps/snapshots/lms_dev_db_dump_$now.sql.gz"
   if [ $? -ne 0 ]
   then
     echo "Failed transfering Canvas dev DB: $db_dump_dev_file_gz to the s3://canvas-dev-db-dumps bucket."
