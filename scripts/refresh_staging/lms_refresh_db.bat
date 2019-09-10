@@ -8,8 +8,6 @@ now=$(date +"%Y%m%d")
 db_dump_staging_file=~/dumps/lms_staging_db_dump_$now.sql
 db_dump_dev_file=~/dumps/lms_dev_db_dump_$now.sql
 
-mv ~/dumps/lms_*.sql.gz ~/dumps/~archive || { echo >&2 " ---- The previous warning most likely just means there were no old backups to archive"; }
-
 echo "Migrating Canvas production database to staging"
 
 # Remove s3:// prefix since we're targeting a URL like: https://s3.amazonaws.com/<bucket_name>/<file_name>
@@ -23,9 +21,9 @@ escaped_staging_bucket=${PORTAL_S3_STAGING_BUCKET//s3:\/\/}
 pg_dump --clean -h $PORTAL_PROD_DB_SERVER -p 5432 -U $PORTAL_PROD_DB_USER -w -d $PORTAL_PROD_DB_NAME | sed -e "
   # Replace production access token with staging token. Encrypted values
   # gotten from the two current dumps and just replaced here.
-  $PORTAL_REPLACE_PROD_ACCESS_TOKEN_REGEX
+  $PORTAL_REPLACE_PROD_ACCESS_TOKEN_WITH_STAGING_REGEX
   # this is the access token hint
-  $PORTAL_REPLACE_PROD_ACCESS_TOKEN_HINT_REGEX
+  $PORTAL_REPLACE_PROD_ACCESS_TOKEN_HINT_WITH_STAGING_REGEX
 
   # SSO config
   s/sso.bebraven.org/stagingsso.bebraven.org/g;
@@ -53,24 +51,14 @@ then
 fi
 
 # Turn it into a development worth DB, compress and add to S3 so that local dev environments can pull it.
-echo "Migrating Canvas staging database to dev database"
-cat $db_dump_staging_file | sed -e "
-  # Replace staging access token with a dev one.
-  $PORTAL_REPLACE_STAGING_ACCESS_TOKEN_REGEX
-  # this is the access token hint
-  $PORTAL_REPLACE_STAGING_ACCESS_TOKEN_HINT_REGEX
+./lms_create_dev_db.bat $db_dump_staging_file
+if [ $? -ne 0 ]
+then
+  echo "Failed creating a dev DB from the staging DB: $$db_dump_staging_file"
+fi
 
-  # SSO config
-  s/https:\/\/stagingsso.bebraven.org/http:\/\/sso.docker/g;
-  # Main site
-  s/https:\/\/stagingjoin.bebraven.org/http:\/\/join.docker/g;
-  # Also fix up internal links in assignments to stay on staging as we navigate
-  s/https:\/\/stagingportal.bebraven.org/http:\/\/canvas.docker/g;
-  # Braven help - note we dont have a staging version of this server, but if we create one it will start working and we want to avoid staging editing the production site
-  s/https:\/\/staginghelp.bebraven.org/http:\/\/help.docker/g;
-  # Also fix up links to custom CSS/JS
-  s/https:\/\/s3.amazonaws.com\/canvas-stag-assets/http:\/\/cssjs.docker/g;
-" | gzip > ${db_dump_dev_file}.gz
-
+# If we want to save snapshots of the staging DBs, we should do it on S3. Saving them here will blow up the disk space
+# once we have a daily or weekly refresh running.
 rm $db_dump_staging_file
+
 
