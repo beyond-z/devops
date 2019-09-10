@@ -8,11 +8,6 @@ now=$(date +"%Y%m%d")
 db_dump_staging_file=~/dumps/lms_staging_db_dump_$now.sql
 db_dump_dev_file=~/dumps/lms_dev_db_dump_$now.sql
 
-# TODO: this is going to blow up teh disk on this server. Change to store these in an S3 bucket and not on here.
-# This only stores the dev DBs currently. Just manually upload them to the dev bucket and then remove. Note that we 
-# need dev buckets for Join as well before we can completely get rid of this local archive
-mv ~/dumps/lms_*.sql.gz ~/dumps/~archive || { echo >&2 " ---- The previous warning most likely just means there were no old backups to archive"; }
-
 echo "Migrating Canvas production database to staging"
 
 # Remove s3:// prefix since we're targeting a URL like: https://s3.amazonaws.com/<bucket_name>/<file_name>
