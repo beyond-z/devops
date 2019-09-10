@@ -11,8 +11,7 @@ db_dump_dev_file=~/dumps/lms_dev_db_dump_$now.sql
 # TODO: this is going to blow up teh disk on this server. Change to store these in an S3 bucket and not on here.
 # This only stores the dev DBs currently. Just manually upload them to the dev bucket and then remove. Note that we 
 # need dev buckets for Join as well before we can completely get rid of this local archive
-# TODO: tmp commented out so i can create a staging DB to work from.
-#mv ~/dumps/lms_*.sql.gz ~/dumps/~archive || { echo >&2 " ---- The previous warning most likely just means there were no old backups to archive"; }
+mv ~/dumps/lms_*.sql.gz ~/dumps/~archive || { echo >&2 " ---- The previous warning most likely just means there were no old backups to archive"; }
 
 echo "Migrating Canvas production database to staging"
 
