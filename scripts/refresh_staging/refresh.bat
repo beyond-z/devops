@@ -35,14 +35,6 @@ then
   exit 1
 fi
 
-echo "Pushing database dumps up to S3 bucket for development environment to access"
-~/scripts/refresh_staging/sync_db_dumps.bat
-if [ $? -ne 0 ]
-then
-  echo "Failed pushing db dumps to $DB_DUMPS_S3_BUCKET Amazon S3 bucket"
-  exit 1
-fi
-
 echo "NOTE: a script to refresh the public facing site, staging.bebraven.org hasn't been written yet.  You have to do that manually for now using teh updraftplus plugin"
 
 else

@@ -33,8 +33,4 @@ echo "Sanitizing all passwords in staging"
 #cat ~/scripts/refresh_staging/join_sanitize_staging_passwords.rb | heroku run rails console --app $HEROKU_STAGING_APP --remote staging
 echo "update users set encrypted_password = '$HEROKU_STAGING_ENCRYPTED_TEST1234_PASS';" | heroku pg:psql --app $HEROKU_STAGING_APP --remote staging
 
-echo "Taking staging db dump to create dev db so it can be pushed to the db dumps bucket on S3 for the developement env to access (done in parent script)"
-mv ~/dumps/join_*.sql.gz ~/dumps/~archive
-now=$(date +"%Y%m%d")
-heroku pg:backups capture --remote staging
-curl `heroku pg:backups public-url --app $HEROKU_STAGING_APP` | gzip > ~/dumps/join_dev_db_dump_$now.sql.gz
+./join_create_dev_db.bat
