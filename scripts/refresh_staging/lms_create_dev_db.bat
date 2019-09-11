@@ -22,15 +22,15 @@ cat $db_dump_staging_file | sed -e "
   $PORTAL_REPLACE_STAGING_ACCESS_TOKEN_HINT_WITH_DEV_REGEX
 
   # SSO config
-  s/https:\/\/stagingsso.bebraven.org/http:\/\/ssoweb/g;
+  s/https:\/\/stagingsso.bebraven.org/http:\/\/ssoweb:3002/g;
   # Main site
-  s/https:\/\/stagingjoin.bebraven.org/http:\/\/joinweb/g;
+  s/https:\/\/stagingjoin.bebraven.org/http:\/\/joinweb:3001/g;
   # Also fix up internal links in assignments to stay on staging as we navigate
-  s/https:\/\/stagingportal.bebraven.org/http:\/\/canvasweb/g;
+  s/https:\/\/stagingportal.bebraven.org/http:\/\/canvasweb:3000/g;
   # Braven help - note we dont have a staging version of this server, but if we create one it will start working and we want to avoid staging editing the production site
   s/https:\/\/staginghelp.bebraven.org/http:\/\/helpweb/g;
   # Also fix up links to custom CSS/JS
-  s/https:\/\/s3.amazonaws.com\/canvas-stag-assets/http:\/\/cssjsweb/g;
+  s/https:\/\/s3.amazonaws.com\/canvas-stag-assets/http:\/\/cssjsweb:3004/g;
 " | gzip > $db_dump_dev_file_gz
 
 if [ $? -ne 0 ]
