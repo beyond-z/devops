@@ -1,4 +1,5 @@
 /.aws
+/.aptitude
 /.bash_history
 /.bash_logout
 /.bash_profile
@@ -8,8 +9,10 @@
 /.gem
 /.gnupg
 /.heroku
+/.heroku_config_settings.json
 /.local
 /.mkshrc
+/.mysql_history
 /.netrc
 /.pgpass
 /.profile
@@ -23,8 +26,12 @@
 *tmp/
 /.env
 *.swp
+/dlang
 /dumps
 /keys
+/agentkeys
+/oldkeys
+/pubkeys
 /logs
 /src
 *join_ruby_script.rb
