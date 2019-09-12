@@ -14,7 +14,9 @@ else
   printf "ERROR: An RVM installation was not found.\n"
 fi
 
-rvm use ruby-2.1.8
+rvm use ruby-2.1.9
+# This was for CanvasLMSProduction before we upgraded bundler to v1.15.2
+#rvm use ruby-2.1.8
 #rvm use ruby-1.9.3-p484
 if [ $? -ne 0 ]
 then

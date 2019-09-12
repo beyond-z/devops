@@ -10,7 +10,10 @@ else
   printf "ERROR: An RVM installation was not found.\n"
 fi
 #rvm use ruby-1.9.3-p484
-rvm use ruby-2.1.8
+# For CanvasLMSStaging2
+#rvm use ruby-2.1.8
+# For CanvasLMSStaging3 (upgraded bundler)
+rvm use ruby-2.1.9
 if [ $? -ne 0 ]
 then
   echo "Failed loading ruby version"
