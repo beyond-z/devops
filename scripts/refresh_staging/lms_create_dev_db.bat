@@ -20,6 +20,8 @@ cat $db_dump_staging_file | sed -e "
   $PORTAL_REPLACE_STAGING_ACCESS_TOKEN_WITH_DEV_REGEX
   # this is the access token hint
   $PORTAL_REPLACE_STAGING_ACCESS_TOKEN_HINT_WITH_DEV_REGEX
+  # This is the hashed encryption key based off the value in security.yml
+  $PORTAL_REPLACE_STAGING_ENCRYPTION_KEY_HASH_WITH_DEV_REGEX
 
   # SSO config
   s/https:\/\/stagingsso.bebraven.org/http:\/\/ssoweb:3002/g;
@@ -27,6 +29,9 @@ cat $db_dump_staging_file | sed -e "
   s/https:\/\/stagingjoin.bebraven.org/http:\/\/joinweb:3001/g;
   # Also fix up internal links in assignments to stay on staging as we navigate
   s/https:\/\/stagingportal.bebraven.org/http:\/\/canvasweb:3000/g;
+  # If we have links to the kits from the LC playbook, fix that up.
+  s/https:\/\/stagingkits.bebraven.org/http:\/\/kitsweb:3005/g;
+  # NOTE: this is obsolete. It now points at Zendesk. Remove?
   # Braven help - note we dont have a staging version of this server, but if we create one it will start working and we want to avoid staging editing the production site
   s/https:\/\/staginghelp.bebraven.org/http:\/\/helpweb/g;
   # Also fix up links to custom CSS/JS
@@ -55,14 +60,8 @@ if aws --version 2> /dev/null; then
 else
   # Install AWS CLI if it's not there
   echo "Error: Please install 'aws'. E.g."
-  echo "   $ pip3 install awscli --upgrade --user"
-  echo "OR"
-  echo "  $ sudo easy_install awscli"
-  echo "OR"
-  echo "  $ curl \"https://s3.amazonaws.com/aws-cli/awscli-bundle.zip\" -o \"awscli-bundle.zip\""
-  echo "  $ unzip awscli-bundle.zip"
-  echo "  $ sudo ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws"
+  echo "   $ pip3 install awscli"
   echo ""
-  echo "You must run 'aws configure' after to setup permissions."
+  echo "You must run 'aws configure' after to setup permissions. Enter your IAM Access Token and Secret. Use us-west-1 for the region."
   exit 1;
 fi

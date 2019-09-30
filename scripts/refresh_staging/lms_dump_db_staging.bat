@@ -1,8 +1,9 @@
 #!/bin/bash
 source ~/.env
 
-now=$(date +"%Y-%m-%d.%H%M")
-pg_dump --clean -h $PORTAL_STAGING_DB_SERVER -p 5432 -U $PORTAL_PROD_DB_USER -w -d $PORTAL_PROD_DB_NAME > "staging_db_dump_$now.sql"
+now=$(date +"%Y%m%d")
+db_dump_staging_file=~/dumps/lms_staging_db_dump_$now.sql
+pg_dump --clean -h $PORTAL_STAGING_DB_SERVER -p 5432 -U $PORTAL_PROD_DB_USER -w -d $PORTAL_PROD_DB_NAME > $db_dump_staging_file
 
 if [ $? -ne 0 ]
 then

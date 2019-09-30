@@ -11,6 +11,14 @@ db_dump_dev_file_gz=${db_dump_dev_file}.gz
 
 heroku pg:backups capture --remote staging
 
+# TODO: we don't really have to do any of this. We can just have devs pull directly from staging using heroku capture, pull and then run DB commands
+# such as the one found in join_refresh to change all passwords to the test one.
+# It's prob still a good idea to store nightly backups in S3, but we're overcomplicating things.
+# It's much more scalable to alter the DB, using the DB, rather than piping it through sed.
+# On the other hand, maybe we stick with this to be consistent for now since this is how the Portal DB's are gotten.
+# When we have devs pull from the staging DBs directly, we should do it everywhere consistently.. Talk to the other devs and get their inpu.
+# See: https://devcenter.heroku.com/articles/heroku-postgres-import-export
+
 echo "Migrating Join staging database to Join dev database"
 curl `heroku pg:backups public-url --app $HEROKU_STAGING_APP` | 
 cat $db_dump_staging_file | sed -e "

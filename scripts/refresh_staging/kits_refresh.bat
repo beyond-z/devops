@@ -6,18 +6,17 @@ staging_db_dump_file=/home/braven-admin/dumps/kits_staging_db_dump_$now.sql
 staging_attendance_db_dump_file=/home/braven-admin/dumps/kits_staging_attendance_db_dump_$now.sql
 staging_db_backup_dump_file=/home/braven-admin/dumps/kits_staging_db_backup_dump_$now.sql
 
-echo "Taking Kits production snapshot / backup"
+echo "Dumping Kits production database and migrating it to a staging database"
 echo "mysqldump -h $KITS_PROD_DB_SERVER -P 3306 -u $KITS_PROD_DB_USER -p$KITS_PROD_DB_PASSWORD $KITS_PROD_DB_NAME"
 mysqldump -h $KITS_PROD_DB_SERVER -P 3306 -u $KITS_PROD_DB_USER -p$KITS_PROD_DB_PASSWORD $KITS_PROD_DB_NAME  | sed -e "
-  # TODO: insert any regexes to replace things as needed. E.g.
   s/https:\/\/kits.bebraven.org/https:\/\/stagingkits.bebraven.org/g;
   s/sso.bebraven.org/stagingsso.bebraven.org/g;
 " > $staging_db_dump_file
 if [ -e $staging_db_dump_file ]
 then
-  echo "Finished taking production snapshot / backup"
+  echo "Finished creating staging database from production."
 else
-  echo "Failed taking production DB dump of Braven Kits website."
+  echo "Failed creating staging database from production."
   echo ""
   echo "If the connection fails, check that the mysql login credentials are correct. Then check that the firewall isn't blocking it by running:"
   echo "telnet $KITS_PROD_DB_SERVER 3306"
@@ -35,10 +34,18 @@ else
   exit 1;
 fi
 
+echo "Dumping Kits production attendance and migrating it to a staging database"
 mysqldump -h $KITS_PROD_DB_SERVER -P 3306 -u $KITS_PROD_DB_USER -p$KITS_PROD_DB_PASSWORD $KITS_PROD_ATTENDANCE_DB_NAME  | sed -e "
-  # TODO: insert any regexes to replace things as needed. E.g.
   s/https:\/\/kits.bebraven.org/https:\/\/stagingkits.bebraven.org/g;
 " > $staging_attendance_db_dump_file
+if [ -e $staging_attendance_db_dump_file ]
+then
+  echo "Finished creating staging attendance database from production."
+else
+  echo "Failed creating staging attendance database from production."
+  echo "Make sure and run all the commands to setup the production attendnace database to allow connections. See script for example."
+  exit 1;
+fi
 
 echo "Backing up staging database"
 echo "mysqldump -h $KITS_STAGING_DB_SERVER -P 3306 -u $KITS_PROD_DB_USER -p$KITS_STAGING_DB_PASSWORD $KITS_PROD_DB_NAME > $staging_db_backup_dump_file"
@@ -62,7 +69,32 @@ then
   echo "e.g. GRANT ALL PRIVILEGES ON \`$KITS_PROD_DB_NAME\`.* TO '$KITS_PROD_DB_USER'@'$ADMIN_SERVER_IP';"
   exit 1;
 fi
+
+ echo "Importing production database for Kits attendance tracking into staging"
 mysql -h $KITS_STAGING_DB_SERVER -P 3306 -u $KITS_PROD_DB_USER -p$KITS_STAGING_DB_PASSWORD $KITS_PROD_ATTENDANCE_DB_NAME < $staging_attendance_db_dump_file
+if [ $? -ne 0 ]
+then
+  echo "Failed importing production attendance database into staging."
+  echo "Make sure the commands where run to create the $KITS_PROD_DB_USER on staging and that they were granted the proper permissions"
+  echo "e.g. GRANT ALL PRIVILEGES ON \`$KITS_PROD_ATTENDANCE_DB_NAME\`.* TO '$KITS_PROD_DB_USER'@'$ADMIN_SERVER_IP';"
+  exit 1;
+fi
+
+echo "Creating dev database for Kits from staging database"
+./kits_create_dev_db.bat $staging_db_dump_file
+if [ $? -ne 0 ]
+then
+  echo "Failed creating dev database for Kits from staging database"
+  exit 1;
+fi
+
+echo "Creating dev database for Kits attendance from staging database"
+./kits_create_dev_attendance_db.bat $staging_attendance_db_dump_file
+if [ $? -ne 0 ]
+then
+  echo "Failed creating dev database for Kits attendance from staging database"
+  exit 1;
+fi
 
 echo "Transferring content from Kits production to staging"
 braven_content_local_folder=~/src/kits/wp-content
@@ -83,6 +115,27 @@ then
   exit 1;
 fi
 
+#TODO: use the kits_refresh_dev_files.bat script
+echo "Transferring uploads content from Kits production to kits-dev-files S3 bucket"
+if aws --version 2> /dev/null; then
+  # Note: not using gzip b/c this is additive and once you have the baseline set of uploads, then each subsequent
+  # run just syncs to changes
+  aws s3 sync $braven_content_local_folder/uploads/ 's3://kits-dev-files/uploads/'
+  if [ $? -ne 0 ]
+  then
+    echo "Failed pushing uploads folder from admin server to kits-dev-files S3 bucket using:"
+    echo "aws s3 sync $braven_content_local_folder/uploads/ s3://kits-dev-files/uploads/"
+    exit 1;
+  fi
+else
+  # Install AWS CLI if it's not there
+  echo "Error: Please install 'aws'. E.g."
+  echo "   $ pip3 install awscli"
+  echo ""
+  echo "You must run 'aws configure' after to setup permissions. Enter your IAM Access Token and Secret. Use us-west-1 for the region."
+  exit 1;
+fi
+
 rsync -avz $KITS_PROD_USER:$braven_content_remote_folder/plugins/ $braven_content_local_folder/plugins
 if [ $? -ne 0 ]
 then
@@ -96,6 +149,16 @@ if [ $? -ne 0 ]
 then
   echo "Failed pushing plugins folder from admin server to staging using:"
   echo "rsync -avz $braven_content_local_folder/plugins/ $KITS_STAGING_USER:$braven_content_remote_folder/plugins"
+  exit 1;
+fi
+
+#TODO: use the kits_refresh_dev_files.bat script
+echo "Transferring plugins content from Kits production to kits-dev-files S3 bucket"
+aws s3 sync $braven_content_local_folder/plugins/ 's3://kits-dev-files/plugins/'
+if [ $? -ne 0 ]
+then
+  echo "Failed pushing plugins folder from admin server to kits-dev-files S3 bucket using:"
+  echo "aws s3 sync $braven_content_local_folder/plugins/ s3://kits-dev-files/plugins/"
   exit 1;
 fi
 

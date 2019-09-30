@@ -8,6 +8,8 @@ then
   exit 1
 fi
 
+source ~/.env
+
 filewithpass=$( basename $1 )
 passtoset=$( <$filewithpass )
 email=${filewithpass%%.encpw.*} # Strip out longest string from the end matching ".encpw.*". The whole beginning is assumed to be the email.
