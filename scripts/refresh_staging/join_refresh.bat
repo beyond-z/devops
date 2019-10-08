@@ -33,4 +33,4 @@ echo "Sanitizing all passwords in staging"
 #cat ~/scripts/refresh_staging/join_sanitize_staging_passwords.rb | heroku run rails console --app $HEROKU_STAGING_APP --remote staging
 echo "update users set encrypted_password = '$HEROKU_STAGING_ENCRYPTED_TEST1234_PASS';" | heroku pg:psql --app $HEROKU_STAGING_APP --remote staging
 
-./join_create_dev_db.bat
+~/scripts/refresh_staging/join_create_dev_db.bat
