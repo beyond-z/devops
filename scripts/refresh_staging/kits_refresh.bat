@@ -81,7 +81,7 @@ then
 fi
 
 echo "Creating dev database for Kits from staging database"
-./kits_create_dev_db.bat $staging_db_dump_file
+~/scripts/refresh_staging/kits_create_dev_db.bat $staging_db_dump_file
 if [ $? -ne 0 ]
 then
   echo "Failed creating dev database for Kits from staging database"
@@ -89,7 +89,7 @@ then
 fi
 
 echo "Creating dev database for Kits attendance from staging database"
-./kits_create_dev_attendance_db.bat $staging_attendance_db_dump_file
+~/scripts/refresh_staging/kits_create_dev_attendance_db.bat $staging_attendance_db_dump_file
 if [ $? -ne 0 ]
 then
   echo "Failed creating dev database for Kits attendance from staging database"
