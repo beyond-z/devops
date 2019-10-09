@@ -5,11 +5,11 @@ read -r -p "Are you sure you want to blow away and refresh the staging servers u
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
 then
 
-echo "Refreshing canvas staging portal (stagingportal.bebraven.org)"
+echo "Refreshing the staging Portal aka Canvas: https://stagingportal.bebraven.org)"
 ~/scripts/refresh_staging/lms_refresh_db.bat
 if [ $? -ne 0 ]
 then
-  echo "Failed refreshing canvas staging portal (stagingportal.bebraven.org)"
+  echo "Failed refreshing the staging Portal"
   echo "Make sure that you can connect to the staging and production databases from your machine:"
   echo "Staging: nc -cv $PORTAL_STAGING_DB_SERVER 5432"
   echo "Production: nc -cv $PORTAL_PROD_DB_SERVER 5432"
@@ -27,15 +27,28 @@ then
 fi
 
 
-echo "Refreshing the website where people signup and apply (stagingjoin.bebraven.org)"
+echo "Refreshing the staging Join server: https://stagingjoin.bebraven.org"
 ~/scripts/refresh_staging/join_refresh.bat
 if [ $? -ne 0 ]
 then
-  echo "Failed refreshing public facing website (staging.bebraven.org)"
+  echo "Failed refreshing the staging Join server (stagingjoin.bebraven.org)"
   exit 1
 fi
 
+echo "Refreshing the staging Kits server: https://stagingkits.bebraven.org"
+~/scripts/refresh_staging/kits_refresh.bat
+if [ $? -ne 0 ]
+then
+  echo "Failed refreshing the staging Kits server (stagingkits.bebraven.org)"
+  exit 1
+fi
+
+########################################################################################
+############ Done with refresh. Let them know anything they need to know. ###############
+
 echo "NOTE: a script to refresh the public facing site, staging.bebraven.org hasn't been written yet.  You have to do that manually for now using teh updraftplus plugin"
+echo ""
+echo "### IMPORTANT: you have to login to the Join admin dashboard and upload the signup_options_campaign_mapping_staging.csv file from Google Drive!!!"
 
 else
   echo "Aborted!"
