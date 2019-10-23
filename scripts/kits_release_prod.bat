@@ -45,7 +45,8 @@ then
   exit 1;
 fi
 
-ssh $KITS_PROD_USER 'cd /var/www/html; git pull origin master; chown -R www-data:www-data .; /etc/init.d/apache2 restart'
+now=$(date +"%Y%m%d")
+ssh $KITS_PROD_USER 'cd /var/www/html && git pull origin master && chown -R www-data:www-data . && /etc/init.d/apache2 restart' &> ~/logs/kits/prod_deploy_$now.log
 if [ $? -ne 0 ]
 then
   echo "Failed connected to prod server and updating code"
