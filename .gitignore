@@ -34,6 +34,7 @@
 /pubkeys
 /logs
 /src
+/misc
 *join_ruby_script.rb
 *join_sql_script.sql
 *lms_ruby_script.rb
