@@ -8,7 +8,7 @@
 
 sed -e '
         # Redirect all To recipients to us at the tech team
-        0,/^To:/{s/^To: \(.*\)/X-Original-To: \1\r\nTo: tech@beyondz.org/}
+        0,/^To:/{s/^To: \(.*\)/X-Original-To: \1\r\nTo: portal-staging-outgoing-emails@bebraven.org/}
 
         # make all Ccs, if any, just stay here on the local box
         0,/^Cc:/{s/^Cc: \(.*\)/Cc: root@localhost/}

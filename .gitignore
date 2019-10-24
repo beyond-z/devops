@@ -40,7 +40,7 @@
 *lms_ruby_script.rb
 *osqa_delete_user.sql
 /scripts/sslcerts
-/scripts/lms_migrate_to_rds
+lms_migrate_to_rds/
 /.Xauthority
 /.bundle/
 /.env-staging-prodsf
