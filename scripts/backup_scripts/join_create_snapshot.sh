@@ -6,6 +6,7 @@ then
   exit 1
 fi
 
+# TODO: this script no longer pushes. Move that language to where it happens
 echo "### Snapshotting production Join database and creating a staging database from it and then pushing to an S3 bucket for the dev and staging servers to restore from"
 dump_file=$1
 cd ~/src/join/

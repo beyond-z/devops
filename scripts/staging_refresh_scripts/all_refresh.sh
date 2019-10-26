@@ -36,19 +36,12 @@ echo "Refreshing the staging Join server: https://stagingjoin.bebraven.org"
   || { echo >&2 "Error: Failed refreshing the staging Join server (stagingjoin.bebraven.org)"; exit 1; }
 
 
-# TODO: cut me over to two phase approach. Automated nightly snapshots. Separately, refresh happens
-# on demand from the latest snapshot
-
-#echo "Refreshing the staging Kits server: https://stagingkits.bebraven.org"
-#~/scripts/refresh_staging/kits_refresh.bat
-#if [ $? -ne 0 ]
-#then
-#  echo "Failed refreshing the staging Kits server (stagingkits.bebraven.org)"
-#  exit 1
-#fi
+echo "Refreshing the staging Kits server: https://stagingkits.bebraven.org"
+~/scripts/staging_refresh_scripts/kits_refresh.bat \
+  || { echo >&2 "Error: Failed refreshing the staging Kits server (stagingkits.bebraven.org)"; exit 1; }
 
 ########################################################################################
-############ Done with refresh. Let them know anything they need to know. ###############
+############ Done with refresh. Print out any followup instructions. ###############
 
 echo "NOTE: a script to refresh the public facing site, staging.bebraven.org hasn't been written yet.  You have to do that manually for now using teh updraftplus plugin"
 echo ""
