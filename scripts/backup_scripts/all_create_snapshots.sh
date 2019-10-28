@@ -37,8 +37,19 @@ dumps_root_dir=~/dumps
 ##################################
 ######### Canvas server ############
 ##################################
-# TODO: 
+lms_dump_filename=lms_staging_db_${now}.sql.gz
+lms_local_dump_file=${dumps_root_dir}/${lms_dump_filename}
 
+~/scripts/backup_scripts/lms_create_snapshot.sh $lms_local_dump_file
+
+aws s3 cp $lms_local_dump_file $lms_latest_dump_s3_path \
+  || { echo >&2 "Error: Failed transfering $lms_local_dump_file to $lms_latest_dump_s3_path"; exit 1; }
+aws s3 cp $lms_latest_dump_s3_path ${PORTAL_S3_STAGING_DBS_BUCKET}/snapshots/${lms_dump_filename} \
+  || { echo >&2 "Error: Failed transfering $lms_latest_dump_s3_path to ${PORTAL_S3_STAGING_DBS_BUCKET}/snapshots/${lms_dump_filename}"; exit 1; }
+rm $lms_local_dump_file
+
+### Copy the uploaded production files over to staging and dev so they can load those files too.
+~/scripts/backup_scripts/lms_update_file_uploads.sh
 
 ##################################
 ######### Join server ############
@@ -51,8 +62,8 @@ join_local_dump_file=${dumps_root_dir}/${join_dump_filename}
 
 aws s3 cp $join_local_dump_file $join_latest_dump_s3_path \
   || { echo >&2 "Error: Failed transfering $join_local_dump_file to $join_latest_dump_s3_path"; exit 1; }
-aws s3 cp $join_local_dump_file ${HEROKU_S3_STAGING_DBS_BUCKET}/snapshots/${join_dump_filename} \
-  || { echo >&2 "Error: Failed transfering $join_local_dump_file to ${HEROKU_S3_STAGING_DBS_BUCKET}/snapshots/${join_dump_filename}"; exit 1; }
+aws s3 cp $join_latest_dump_s3_path ${HEROKU_S3_STAGING_DBS_BUCKET}/snapshots/${join_dump_filename} \
+  || { echo >&2 "Error: Failed transfering $join_latest_dump_s3_path to ${HEROKU_S3_STAGING_DBS_BUCKET}/snapshots/${join_dump_filename}"; exit 1; }
 rm $join_local_dump_file
 
 ##################################
@@ -67,8 +78,8 @@ kits_local_dump_file=${dumps_root_dir}/${kits_dump_filename}
 
 aws s3 cp $kits_local_dump_file $kits_latest_dump_s3_path \
   || { echo >&2 "Error: Failed transfering $kits_local_dump_file to $kits_latest_dump_s3_path"; exit 1; }
-aws s3 cp $kits_local_dump_file ${KITS_S3_STAGING_DBS_BUCKET}/snapshots/${kits_dump_filename} \
-  || { echo >&2 "Error: Failed transfering $kits_local_dump_file to ${KITS_S3_STAGING_DBS_BUCKET}/snapshots/${kits_dump_filename}"; exit 1; }
+aws s3 cp $kits_latest_dump_s3_path ${KITS_S3_STAGING_DBS_BUCKET}/snapshots/${kits_dump_filename} \
+  || { echo >&2 "Error: Failed transfering $kits_latest_dump_s3_path to ${KITS_S3_STAGING_DBS_BUCKET}/snapshots/${kits_dump_filename}"; exit 1; }
 rm $kits_local_dump_file
 
 ### Attendance DB
@@ -79,8 +90,8 @@ kits_attendance_local_dump_file=${dumps_root_dir}/${kits_attendance_dump_filenam
 
 aws s3 cp $kits_attendance_local_dump_file $kits_latest_dump_attendance_s3_path \
   || { echo >&2 "Error: Failed transfering $kits_attendance_local_dump_file to $kits_latest_dump_attendance_s3_path"; exit 1; }
-aws s3 cp $kits_attendance_local_dump_file ${KITS_S3_STAGING_DBS_BUCKET}/snapshots/${kits_attendance_dump_filename} \
-  || { echo >&2 "Error: Failed transfering $kits_attendance_local_dump_file to ${KITS_S3_STAGING_DBS_BUCKET}/snapshots/${kits_attendance_dump_filename}"; exit 1; }
+aws s3 cp $kits_latest_dump_attendance_s3_path ${KITS_S3_STAGING_DBS_BUCKET}/snapshots/${kits_attendance_dump_filename} \
+  || { echo >&2 "Error: Failed transfering $kits_latest_dump_attendance_s3_path to ${KITS_S3_STAGING_DBS_BUCKET}/snapshots/${kits_attendance_dump_filename}"; exit 1; }
 rm $kits_attendance_local_dump_file
 
 ### Update the S3 backup of prod wp-content that staging and dev can use to restore from.
