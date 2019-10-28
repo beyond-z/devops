@@ -20,7 +20,7 @@ echo "### Restoring Portal staging DB from $lms_latest_dump_s3_path"
 aws s3 cp $lms_latest_dump_s3_path - | gunzip | psql -h $PORTAL_STAGING_DB_SERVER -p 5432 -U $PORTAL_PROD_DB_USER -w -d $PORTAL_PROD_DB_NAME 
 if [ $? -ne 0 ]
 then
-  echo "Error: Failed importing $kits_latest_dump_s3_path database"; 
+  echo "Error: Failed restoring from $kits_latest_dump_s3_path database"; 
   echo "Double check that you have a ~/.pgpass file with credentials to connect to the staging databases."
   echo "Note that the ~/.pgpass file should have permissions set to chmod 600.  Example of file contents:"
   echo "$PORTAL_STAGING_DB_SERVER:5432:*:$PORTAL_PROD_DB_USER:yourPass"
