@@ -6,13 +6,13 @@ source ~/scripts/helper_functions.sh
 # into the staging server DB.
 ################
 
-# TODO: REPLACE THIS WHOLE SCRIPT (in fact, replace the whole infratructure for LMS DBs)
-# to use RDS snapshots. A staging DB refresh shoiuld really just be choosing an RDS snapshot and restoring it,
+# In the future, replace the whole infratructure for snapshotting and creating
+# staging DBs by using RDS snapshots. A staging DB refresh shoiuld really 
+# just be choosing an RDS snapshot and restoring it,
 # then running some scripts to make it work in staging (aka get rid of sed)
 # This will save a TON of space, b/c snapshots act as full backups but the data
 # is stored incrementally.
 # See: https://app.asana.com/0/inbox/9489675646629/1145575802065481/1146474823629330
-# Leaning towards not doing this now. Just keep storing in S3.
 
 exit_if_no_aws
 
