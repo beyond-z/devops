@@ -6,8 +6,7 @@ then
   exit 1
 fi
 
-# TODO: this script no longer pushes. Move that language to where it happens
-echo "### Snapshotting production Join database and creating a staging database from it and then pushing to an S3 bucket for the dev and staging servers to restore from"
+echo "### Snapshotting production Join database and migrating it to a staging database"
 dump_file=$1
 cd ~/src/join/
 
@@ -44,3 +43,4 @@ echo "Downloading snapshot to $dump_file"
 heroku pg:backups:download -o $dump_file --app $HEROKU_SNAPSHOTS_APP \
   || { echo >&2 "Error: command 'heroku pg:backups:download -o $dump_file --app $HEROKU_SNAPSHOTS_APP' failed."; exit 1; }
 
+echo "### Done: Snapshotting production Join database and migrating it to a staging database"

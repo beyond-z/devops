@@ -9,16 +9,18 @@ exit_if_no_aws
 
 cd ~/src/join/
 
+echo "### Restoring Join staging DB from $join_latest_dump_s3_path"
+
 echo "Creating link to latest Join staging DB snapshot"
 # TODO: consolidate the naming of all the files b/n creating the snapshots and restoring the snapshots instead of hardcoding
 # Link good for 5 min.
 cmd_to_get_dump_url="aws s3 presign --expires-in 300 $join_latest_dump_s3_path"
 dump_url_to_restore=`$cmd_to_get_dump_url` || { echo >&2 "Error: Failed getting public URL for $join_latest_dump_s3_path"; exit 1;}
 
-echo "Restoring Join staging DB from latest snapshot"
 heroku pg:backups:restore $dump_url_to_restore $HEROKU_STAGING_DB --app $HEROKU_STAGING_APP \
   || { echo >&2 "Error: Failed running heroku pg:backups:restore $dump_url_to_restore $HEROKU_STAGING_DB --app $HEROKU_STAGING_APP"; exit 1; }
 
+echo "### Done: Restoring Join staging DB from $join_latest_dump_s3_path"
 
 
 

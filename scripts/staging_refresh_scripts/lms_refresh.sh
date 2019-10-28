@@ -16,7 +16,7 @@ source ~/scripts/helper_functions.sh
 
 exit_if_no_aws
 
-echo "### Importing $lms_latest_dump_s3_path database into Portal staging DB"
+echo "### Restoring Portal staging DB from $lms_latest_dump_s3_path"
 aws s3 cp $lms_latest_dump_s3_path - | gunzip | psql -h $PORTAL_STAGING_DB_SERVER -p 5432 -U $PORTAL_PROD_DB_USER -w -d $PORTAL_PROD_DB_NAME 
 if [ $? -ne 0 ]
 then
@@ -27,4 +27,4 @@ then
   exit 1; 
 fi
 
-echo "### Done: Importing $lms_latest_dump_s3_path database into Portal staging DB"
+echo "### Done: Restoring Portal staging DB from $lms_latest_dump_s3_path"
