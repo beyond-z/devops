@@ -2,7 +2,7 @@
 source ~/.env
 
 now=$(date +"%Y-%m-%d.%H%M")
-pg_dump --clean -Fc -h $PORTAL_STAGING_DB_SERVER -p 5432 -U $PORTAL_PROD_DB_USER -w -d $PORTAL_PROD_DB_NAME > "staging_db_dump_compressed_$now.sql"
+pg_dump --clean -Fc -h $PORTAL_STAGING_DB_SERVER -p 5432 -U $PORTAL_PROD_DB_USER -w -d $PORTAL_PROD_DB_NAME > "staging_db_dump_compressed_$now.dump"
 
 if [ $? -ne 0 ]
 then

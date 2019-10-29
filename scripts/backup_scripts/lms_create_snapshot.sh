@@ -1,18 +1,18 @@
 #!/bin/bash
+source ~/scripts/helper_functions.sh
 if [ -z "$1" ]
 then
-  echo "Please pass in the staging DB filename to store the created DB in. E.g.: ./lms_create_staging_db.bat ~/dumps/lms_staging_db_dump_20190909.sql"
+  echo "Please pass in the staging DB filename to store the created gzipped DB in. E.g.:"
+  echo "./lms_create_snapshot.sh ~/dumps/lms_staging_db_20191024.sql.gz"
   exit 1
 fi
-
-source ~/.env
 
 # TODO: this creates a HUGE file to send across the wire.  Tons of it is in the error_reports, messages, and versions tables alone.
 # Maybe I can clear the main values in those columns in those tables when i transfer?
 
-db_dump_staging_file=$1
+dump_file=$1
 
-echo "Dumping Canvas production database and migrating it to a staging database"
+echo "### Snapshotting the Canvas production database and migrating it to a staging database"
 
 # Remove s3:// prefix since we're targeting a URL like: https://s3.amazonaws.com/<bucket_name>/<file_name>
 escaped_prod_bucket=${PORTAL_S3_PROD_BUCKET//s3:\/\/}
@@ -42,7 +42,7 @@ pg_dump --clean -h $PORTAL_PROD_DB_SERVER -p 5432 -U $PORTAL_PROD_DB_USER -w -d 
   s/$escaped_prod_bucket/$escaped_staging_bucket/g;
 
   # BTW Passwords are done via SSO so we dont have to try to change them here
-" > $db_dump_staging_file
+" | gzip > $dump_file
 
 if [ $? -ne 0 ]
 then
@@ -53,3 +53,6 @@ then
   echo "$PORTAL_PROD_DB_SERVER:5432:*:$PORTAL_PROD_DB_USER:yourPass"
   exit 1;
 fi
+
+echo "### Done: Snapshotting the Canvas production database and migrating it to a staging database"
+
