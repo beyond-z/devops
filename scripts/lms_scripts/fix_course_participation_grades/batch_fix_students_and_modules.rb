@@ -1,22 +1,26 @@
 # This script should be customized before run - adjust course id(s), adjust name(s)
 # adjust page name(s), maybe use the loop for specific people instead of for everyone.
+# To run, copy it over to the server at the app root.
+# Then open the console and run: load '.batch_fix_students_and_modules.rb'
+# Then run: execute_grade_fix
 
 def execute_grade_fix
   bzg = BZGrading.new
 
   #[56, 57, 58].each do |course_id|
-  [57].each do |course_id|
+  [71].each do |course_id|
   #course_id = 56 # 57 58
   #user_names = [
-	#'Rebecca Winslow'
+	#'Brian Sadler'
   #]
 
   wiki_page_names = [
-	'Capstone Challenge Kickoff'
+	'Ideate & Prototype'
   ]
 
   results = []
 
+  # TODO: replace this line with the next if you want to loop over usernames instead of all students in the course.
   #user_names.each do |user_name|
   Course.find(course_id).students.active.each do |current_user|
     #current_user = User.active.find_by_name(user_name)
@@ -46,8 +50,13 @@ def execute_grade_fix
       existing_grade = submission.grade.nil? ? 0 : submission.grade.to_f
 
       if score > existing_grade
+         if (score > (participation_assignment.points_possible.to_f - 0.4))
+           score = participation_assignment.points_possible.to_f # Once they are pretty close to full participation points, always set their grade to full points
+                                                                # to account for floating point inaccuracies.
+         end
         # save it back only if increased; to protect against complaints
-        bzg.set_user_grade_for_module(module_item_id, current_user, score)
+        # TODO: dry run and then uncomment if we good to actually set the grades.
+        #bzg.set_user_grade_for_module(module_item_id, current_user, score)
       	results << "#{current_user.name} #{wiki_page_name} updated to #{score}"
       else
       	results << "#{current_user.name} #{wiki_page_name} NOT updated to #{score}"
