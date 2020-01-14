@@ -25,7 +25,7 @@ then
 fi
 
 # Merge the code from staging to master
-git checkout bz-staging; git pull origin bz-staging; git checkout bz-master; git pull origin bz-master; git merge --no-ff bz-staging
+git checkout bz-staging-heroku; git pull origin bz-staging-heroku; git checkout bz-master-heroku; git pull origin bz-master-heroku; git merge --no-ff bz-staging-heroku
 if [ $? -ne 0 ]
 then
   echo "Failed merging staging to master"
@@ -47,26 +47,16 @@ fi
 git push origin $tagname
 
 # Push the new master branch to github.
-git push origin bz-master
+git push origin bz-master-heroku
 if [ $? -ne 0 ]
 then
   echo "Failed pushing code to master"
   exit 1;
 fi
 
-# Push the code
-now=$(date +"%Y%m%d")
-bundle exec cap production deploy --trace &> ~/logs/canvas/prod_deploy_$now.log
-
 # Note: if you are updating Canvas code significantly, you may have to flush the redis cache.  Try this
 # on the remote server if the screen is blank after the deploy:
 # redis-cli -r 1 flushall
-
-if [ $? -ne 0 ]
-then
-  echo "Failed deploying to production"
-  exit 1;
-fi
 
 ~/scripts/lms_release_custom_css_js_prod.bat
 if [ $? -ne 0 ]
@@ -75,7 +65,8 @@ then
   exit 1;
 fi
 
-echo "Done deploying code and CSS/JS to production."
+echo "Done deploying code to master branch on Heroku and CSS/JS to production."
+echo "IMPORTANT: the deploy will not be live until the build finished on Heroku here: https://dashboard.heroku.com/apps/portal-bebraven-dot-org"
 echo "IMPORTANT: If there were CSS/JS changes, go update the version string in the settings so the cached version is invalidated!: https://portal.bebraven.org/accounts/1/settings"
 else
   echo "Aborted!"
