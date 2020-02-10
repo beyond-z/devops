@@ -17,7 +17,7 @@ echo "Creating link to latest Join staging DB snapshot"
 cmd_to_get_dump_url="aws s3 presign --expires-in 300 $join_latest_dump_s3_path"
 dump_url_to_restore=`$cmd_to_get_dump_url` || { echo >&2 "Error: Failed getting public URL for $join_latest_dump_s3_path"; exit 1;}
 
-heroku pg:backups:restore $dump_url_to_restore $HEROKU_STAGING_DB --app $HEROKU_STAGING_APP \
+heroku pg:backups:restore $dump_url_to_restore $HEROKU_STAGING_DB --app $HEROKU_STAGING_APP --confirm $HEROKU_STAGING_APP \
   || { echo >&2 "Error: Failed running heroku pg:backups:restore $dump_url_to_restore $HEROKU_STAGING_DB --app $HEROKU_STAGING_APP"; exit 1; }
 
 echo "### Done: Restoring Join staging DB from $join_latest_dump_s3_path"
