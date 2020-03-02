@@ -34,9 +34,9 @@ dumps_root_dir=~/dumps
 # Note: snapshots in a format that required pg_restore have .dump extenstions
 # while those that are gzip'ed sql have .sql.gz extensions.
 
-##################################
-######### Canvas server ############
-##################################
+###################################
+########## Canvas server ############
+###################################
 lms_dump_filename=lms_staging_db_${now}.sql.gz
 lms_local_dump_file=${dumps_root_dir}/${lms_dump_filename}
 
@@ -96,4 +96,36 @@ rm $kits_attendance_local_dump_file
 
 ### Update the S3 backup of prod wp-content that staging and dev can use to restore from.
 ~/scripts/backup_scripts/kits_update_wp_content_backup.sh
+
+
+##################################
+######### BeBraven dot org server ############
+##################################
+
+### Main WordPress DB
+bebraven_dump_filename=bebraven_staging_db_${now}.sql.gz
+bebraven_local_dump_file=${dumps_root_dir}/${bebraven_dump_filename}
+
+~/scripts/backup_scripts/bebraven_create_snapshot.sh $BRAVEN_PROD_DB_NAME $bebraven_local_dump_file
+
+aws s3 cp $bebraven_local_dump_file $bebraven_latest_dump_s3_path \
+  || { echo >&2 "Error: Failed transfering $bebraven_local_dump_file to $bebraven_latest_dump_s3_path"; exit 1; }
+aws s3 cp $bebraven_latest_dump_s3_path ${BRAVEN_S3_STAGING_DBS_BUCKET}/snapshots/${bebraven_dump_filename} \
+  || { echo >&2 "Error: Failed transfering $bebraven_latest_dump_s3_path to ${BRAVEN_S3_STAGING_DBS_BUCKET}/snapshots/${bebraven_dump_filename}"; exit 1; }
+rm $bebraven_local_dump_file
+
+### Mock IV DB
+bebraven_mock_iv_dump_filename=bebraven_staging_mock_iv_db_${now}.sql.gz
+bebraven_mock_iv_local_dump_file=${dumps_root_dir}/${bebraven_mock_iv_dump_filename}
+
+~/scripts/backup_scripts/bebraven_create_snapshot.sh $BRAVEN_PROD_INTERVIEW_MATCHER_DB_NAME $bebraven_mock_iv_local_dump_file
+
+aws s3 cp $bebraven_mock_iv_local_dump_file $bebraven_latest_dump_mock_iv_s3_path \
+  || { echo >&2 "Error: Failed transfering $bebraven_mock_iv_local_dump_file to $bebraven_latest_dump_mock_iv_s3_path"; exit 1; }
+aws s3 cp $bebraven_latest_dump_mock_iv_s3_path ${BRAVEN_S3_STAGING_DBS_BUCKET}/snapshots/${bebraven_mock_iv_dump_filename} \
+  || { echo >&2 "Error: Failed transfering $bebraven_latest_dump_mock_iv_s3_path to ${BRAVEN_S3_STAGING_DBS_BUCKET}/snapshots/${bebraven_mock_iv_dump_filename}"; exit 1; }
+rm $bebraven_mock_iv_local_dump_file
+
+### Update the S3 backup of prod wp-content that staging and dev can use to restore from.
+~/scripts/backup_scripts/bebraven_update_wp_content_backup.sh
 

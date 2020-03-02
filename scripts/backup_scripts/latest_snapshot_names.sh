@@ -10,3 +10,8 @@ kits_latest_dump_filename=kits_staging_db_latest.sql.gz
 kits_latest_dump_s3_path=${KITS_S3_STAGING_DBS_BUCKET}/${kits_latest_dump_filename}
 kits_latest_dump_attendance_filename=kits_staging_attendance_db_latest.sql.gz
 kits_latest_dump_attendance_s3_path=${KITS_S3_STAGING_DBS_BUCKET}/${kits_latest_dump_attendance_filename}
+bebraven_latest_dump_filename=bebraven_staging_db_latest.sql.gz
+bebraven_latest_dump_s3_path=${BRAVEN_S3_STAGING_DBS_BUCKET}/${bebraven_latest_dump_filename}
+bebraven_latest_dump_mock_iv_filename=bebraven_staging_mock_iv_db_latest.sql.gz
+bebraven_latest_dump_mock_iv_s3_path=${BRAVEN_S3_STAGING_DBS_BUCKET}/${bebraven_latest_dump_mock_iv_filename}
+
