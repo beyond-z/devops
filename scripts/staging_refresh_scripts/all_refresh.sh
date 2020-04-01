@@ -16,16 +16,19 @@ echo "### Refreshing the staging Join server: https://stagingjoin.bebraven.org"
 echo "### Done: Refreshing the staging Join server: https://stagingjoin.bebraven.org"
 
 echo "### Refreshing the staging Kits server: https://stagingkits.bebraven.org"
-~/scripts/staging_refresh_scripts/kits_refresh.bat \
+~/scripts/staging_refresh_scripts/kits_refresh.sh \
   || { echo >&2 "Error: Failed refreshing the staging Kits server (stagingkits.bebraven.org)"; exit 1; }
 echo "### Done: Refreshing the staging Kits server: https://stagingkits.bebraven.org"
+
+echo "### Refreshing the staging public facing website: https://staging.bebraven.org"
+~/scripts/staging_refresh_scripts/bebraven_refresh.sh \
+  || { echo >&2 "Error: Failed refreshing the public facing website (staging.bebraven.org)"; exit 1; }
+echo "### Done: Refreshing the staging public facing website: https://staging.bebraven.org"
 
 ########################################################################################
 ############ Done with refresh. Print out any followup instructions. ###############
 ########################################################################################
 
-echo "NOTE: a script to refresh the public facing site, staging.bebraven.org hasn't been written yet.  You have to do that manually for now using teh updraftplus plugin"
-echo ""
 echo "### IMPORTANT: you have to login to the Join admin dashboard and upload the signup_options_campaign_mapping_staging.csv file from Google Drive!!!"
 
 else
