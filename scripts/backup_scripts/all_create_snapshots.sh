@@ -51,6 +51,26 @@ rm $lms_local_dump_file
 ### Copy the uploaded production files over to staging and dev so they can load those files too.
 ~/scripts/backup_scripts/lms_update_file_uploads.sh
 
+# Note: snapshots in a format that required pg_restore have .dump extenstions
+# while those that are gzip'ed sql have .sql.gz extensions.
+
+###################################
+########## Booster server ############
+###################################
+lms_dump_filename=lms_staging_db_${now}.sql.gz
+lms_local_dump_file=${dumps_root_dir}/${lms_dump_filename}
+
+~/scripts/backup_scripts/lms_create_snapshot_booster.sh $lms_local_dump_file
+
+aws s3 cp $lms_local_dump_file $lms_booster_latest_dump_s3_path \
+  || { echo >&2 "Error: Failed transfering $lms_local_dump_file to $lms_booster_latest_dump_s3_path"; exit 1; }
+aws s3 cp $lms_booster_latest_dump_s3_path ${PORTAL_BOOSTER_S3_STAGING_DBS_BUCKET}/snapshots/${lms_dump_filename} \
+  || { echo >&2 "Error: Failed transfering $lms_booster_latest_dump_s3_path to ${PORTAL_BOOSTER_S3_STAGING_DBS_BUCKET}/snapshots/${lms_dump_filename}"; exit 1; }
+rm $lms_local_dump_file
+
+### Copy the uploaded production files over to staging and dev so they can load those files too.
+~/scripts/backup_scripts/lms_booster_update_file_uploads.sh
+
 ##################################
 ######### Join server ############
 ##################################
