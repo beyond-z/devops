@@ -1,5 +1,9 @@
 #/bin/bash
 
+echo "This script is obsolete. Either update it to work with the new https://github.com/bebraven/canvas-lms repo or delete and rollout a new release process to the dev team"
+echo "If you update to work with new repo, the branches bz-staging-heroku becomes staging and bz-master-heroku becomes production."
+exit 1;
+
 read -r -p "Are you sure you want to release staging to production? [y/N] " response
 if [[ $response =~ ^([yY][eE][sS]|[yY])$ ]]
 then
