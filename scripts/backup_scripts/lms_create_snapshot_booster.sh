@@ -38,6 +38,7 @@ pg_restore $prod_dump_file | sed -e "
 
   # New SSO config / platform
   s/platform.bebraven.org/stagingplatform.bebraven.org/g;
+  s/boosterplatform.braven.org/stagingboosterplatform.braven.org/g;
   # Main site
   s/join.bebraven.org/stagingjoin.bebraven.org/g;
   # Also fix up internal links in assignments to stay on staging as we navigate
